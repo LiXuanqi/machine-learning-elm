@@ -9,15 +9,11 @@ P = train_data(:,1:13)';
 
 clear train_data;
 
-%%%%%载入测试集，有什么用
 
 NumberofTrainingData = size(P,2);
 NumberofInputNeurons = size(P,1);
 
-%%%%%%%training set 预处理
-temp_T = zeros(1,NumberofTrainingData);
 
-T = temp_T * 2 - 1;                      %涵义？
 
 %%%%%%%随机生成输入权重InputWeight(w_i)和偏置 BiasofHiddenNeurons(b_i)
 InputWeight = rand(NumberofHiddenNeurons,NumberofInputNeurons) * 2 - 1;
