@@ -1,9 +1,9 @@
 clc;
 clear;
 %%%%%%初始参数设置
-NumberofHiddenNeurons = 100;    %隐层神经元数
-N0 = 150;                        %用于初始化阶段的样本数量
-Block = 10;                      %在线学习 每步的数据量
+NumberofHiddenNeurons = 20;    %隐层神经元数
+N0 = 3000;                        %用于初始化阶段的样本数量
+Block = 100;                      %在线学习 每步的数据量
 syms x;
 %%%%%%载入training set.
 train_data = load('sinc_train');
@@ -43,8 +43,21 @@ store_S = S0;
 % K_q = store_H' * store_H + eye(size(store_H,2)) .* N0;
 % % beta_q = pinv(K_q) * store_H' * store_S * store_Y;
  %%%%%一次在线学习
-n= N0;
-time=1; %循环次数
+ time = 0
+ gamma_min = gamma0;
+ beta = beta0;
+ gamma_unknow=x;
+ for n = N0 : Block : NumberofTrainingData
+     time = time+1
+    if (n + Block - 1) > NumberofTrainingData
+        Pn = P(n:NumberofTrainingData,:);
+        Tn = T(NumberofTrainingData,:);
+        Block = size(Pn,1);
+        clear V;
+    else
+        Pn = P(n:(n+Block-1),:);
+        Tn = T(n:(n+Block-1),:);
+    end
 Pn = P(n:(n+Block-1),:);
 Tn = T(n:(n+Block-1),:);
 H = RBFun(Pn,InputWeight,BiasofHiddenNeurons);
@@ -52,9 +65,8 @@ H = RBFun(Pn,InputWeight,BiasofHiddenNeurons);
 store_H = [store_H;H];
 store_Y = [store_Y;Tn]; 
 
-gamma_min = gamma0;%test用
 K = K + H' * H * gamma_min + Block * eye(NumberofHiddenNeurons);%这里的gamma怎么处理
-beta = beta0;
+
 beta = beta + gamma_min * pinv(K) *H' *(Tn - H * beta) - Block * K * beta;
 for i = 1:1:Block
 gamma = [gamma,gamma_min];
@@ -65,7 +77,7 @@ store_S = diag(gamma);
 K_q = store_H' * store_H + eye(size(store_H,2)) .*( N0+Block*time);
 beta_q = pinv(K_q) * store_H' * store_S * store_Y;
 
-gamma_unknow=x;
+
 K_a=K_q + H' * H * gamma_unknow + eye(NumberofHiddenNeurons)*Block;
 G=diag(diag(gamma_unknow * H * pinv(K) * H'));
 E=(eye(Block)-G)*(H * beta_q + gamma_unknow * H * pinv(K) * H' *(Tn - H * beta_q)-Block * H * pinv(K) * beta_q - Tn);
@@ -94,41 +106,15 @@ while 1
     end
 end
 gamma_min = x1;
+ end
 
-% %%%%%%%%%% 在线学习阶段
-% for n = N0 : Block : NumberofTrainingData
-%     if (n + Block - 1) > NumberofTrainingData
-%         Pn = P(n:NumberofTrainingData,:);
-%         Tn = T(NumberofTrainingData,:);
-%         Block = size(Pn,1);
-%         clear V;
-%     else
-%         Pn = P(n:(n+Block-1),:);
-%         Tn = T(n:(n+Block-1),:);
-%     end
-%     H = RBFun(Pn,InputWeight,BiasofHiddenNeurons);
-% %     %%%%%gamma
-% %   gamma(1,N0+1:N0+Block) = Tempgamma;
-%     
-%     %%%%%计算Kq,beta_q
-%     TempK = H * H' + eye(NumberofHiddenNeurons) .* (N0 + n * Block); 
-%     S_q = diag(gamma);
-%     Y_q(N0+n,1) = Tn;
-%     TempBeta =  pinv(TempK) * H' * S_q * Y_q;
-%     %%%%%迭代公式
-%     K = K + H' * H * gamma + m_k * eye(Block); %m_k是多少
-%     beta = beta + gamma * pinv(K) * H' * (Y - H * beta) - m_k * pinv(K) * beta;   %beta的迭代公式
+HTrain = RBFun(P,InputWeight,BiasofHiddenNeurons);
 % 
-% end
-% 
-% 
-% HTrain = RBFun(P,InputWeight,BiasofHiddenNeurons);
-% 
-% Y = HTrain * beta;
-% clear HTrain;
+Y = HTrain * beta;
+
 % 
 % 
 % %%%%%% 计算训练准确度
 % 
-% TrainingAccuracy = sqrt(mse(T - Y))      %计算RMSE
+TrainingAccuracy = sqrt(mse(T - Y))      %计算RMSE
 
