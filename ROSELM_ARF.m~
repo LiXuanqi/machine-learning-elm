@@ -77,15 +77,15 @@ gamma = [gamma,gamma_min];
 end
 store_S = diag(gamma);
 %%%%一次FOLOO
-
-K_q = store_H' * store_H + eye(size(store_H,2)) .*( N0+Block*time);   %公式14
+K_q = H' * H + eye(size(store_H,2)) .*( N0+Block*time);
+%K_q = store_H' * store_H + eye(size(store_H,2)) .*( N0+Block*time);   %公式14
 beta_q = eye(size(K_q))/K_q * store_H' * store_S * store_Y;
 
 gamma_unknow = [0 0.01 0.1 2^0 2^5 2^10 2^100 2^1000 2^10000];
 for i = 1:length(gamma_unknow)
 K_a=K_q + H' * H * gamma_unknow(i) + eye(NumberofHiddenNeurons)*Block;    %公式19
-G=diag(diag(gamma_unknow(i) * H * eye(size(K_a))/K_a * H'));
-E=eye(size(eye(Block)-G))/(eye(Block)-G)*(H * beta_q + gamma_unknow(i) * H * eye(size(K_a))/K_a * H' *(Tn - H * beta_q)-Block * H * eye(size(K_a))/K_a * beta_q - Tn);%公式23
+G=diag(diag(gamma_unknow(i) * H * eye(size(K))/K * H'));
+E=(eye(Block)-G)*(H * beta_q + gamma_unknow(i) * H * eye(size(K))/K * H' *(Tn - H * beta_q)-Block * H * eye(size(K))/K * beta_q - Tn);%公式23
 Objective_Function(i) = 1/2 * E' * E;                                     %公式24
 end
 

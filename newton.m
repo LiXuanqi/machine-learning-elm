@@ -5,8 +5,8 @@ function [a]=newton(fun,x1,eps)
 %x:the initial point
 %eps:error
 %%%%%%%%%%%%
-syms x 
-f=fun ;
+syms x
+f=fun;
 grad1=jacobian(f,x); 
 grad2=jacobian(grad1,x); 
 k=0; 

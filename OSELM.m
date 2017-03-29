@@ -5,9 +5,9 @@ NumberofHiddenNeurons = 20;    %隐层神经元数
 N0 = 100;                        %用于初始化阶段的样本数量
 Block = 20;                      %在线学习 每步的数据量
 %%%%%%载入training set.
-train_data = load('housing.txt');
-T = train_data(:,14);                   %训练集的第14列为输出
-P = train_data(:,1:13);
+train_data = load('sinc_train');
+T = train_data(:,1);                   %训练集的第14列为输出
+P = train_data(:,2);
 
 clear train_data;
 
